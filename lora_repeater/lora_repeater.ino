@@ -6,6 +6,8 @@
 #define DI0     26
 #define BAND    433E6
 
+const int maxPacketSize = 256;
+
 void setup()
 {
   SPI.begin(5, 19, 27, 18);
@@ -59,20 +61,21 @@ String receivePacket()
 
 void loop()
 {
-    String packet = receivePacket();
-    if (packet == "") {
-      return;
-    }
-    Serial.println("packet " + packet);
-    packet = "r" + packet;
-    byte buf[packet.length()];
-    packet.getBytes(buf, packet.length());
-    delay(500);
-    int sent_bytes = sendPacket(buf, packet.length()+1);
-    if (!sent_bytes) {
-      Serial.println("failed");
-    }
+  String packet = receivePacket();
+  if (packet == "") {
+    return;
+  }
 
-    Serial.println("wrote " + String(sent_bytes) + " bytes");
+  Serial.println("Forwarding " + packet);
+
+  packet = "rr\n"+packet;
+
+  byte buf[packet.length()];
+  packet.getBytes(buf, packet.length());
+
+  int sent = sendPacket(buf, packet.length());
+  if (!sent) {
+    Serial.println("failed");
+  }
 }
 
