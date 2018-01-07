@@ -61,23 +61,23 @@ String receivePacket()
 
 void loop()
 {
-  if (Serial.available()) {
-    byte buf[maxPacketSize];
-    size_t n = Serial.readBytesUntil('\n', buf, maxPacketSize);
-    Serial.println("w");
-    int wrote = sendPacket(buf, n);
-    if (!wrote) {
-      Serial.println("0");
-    }
-
-    Serial.println(String(wrote));
-  }
-
   String received = receivePacket();
-  if (received.length() > 0) {
-    Serial.println("r");
-    Serial.println(String(received.length()));
-    Serial.println(received);
+  if (received.length() <= 0) { return; }
+  
+  Serial.println("r");
+  Serial.println(String(received.length()));
+  Serial.println(received);
+
+  if (!Serial.available()) { return; }
+  
+  byte buf[maxPacketSize];
+  size_t n = Serial.readBytesUntil('\n', buf, maxPacketSize);
+  Serial.println("w");
+  int wrote = sendPacket(buf, n);
+  if (!wrote) {
+    Serial.println("0");
   }
+
+  Serial.println(String(wrote));
 }
 
