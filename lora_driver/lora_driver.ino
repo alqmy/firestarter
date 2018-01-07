@@ -59,15 +59,16 @@ String receivePacket()
   return packet;
 }
 
-void loop()
-{
+void receive() {
   String received = receivePacket();
   if (received.length() <= 0) { return; }
   
   Serial.println("r");
   Serial.println(String(received.length()));
   Serial.println(received);
+}
 
+void send() {
   if (!Serial.available()) { return; }
   
   byte buf[maxPacketSize];
@@ -79,5 +80,11 @@ void loop()
   }
 
   Serial.println(String(wrote));
+}
+
+void loop()
+{
+  receive();
+  send();
 }
 
