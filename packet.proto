@@ -1,0 +1,9 @@
+syntax = "proto2";
+
+import "nanopb.proto";
+
+message Packet {
+    required bytes id = 1 [(nanopb).max_size = 8, (nanopb).fixed_length=true];
+    required bytes data = 2 [(nanopb).max_size = 256];
+    required bool repeated = 3;
+}

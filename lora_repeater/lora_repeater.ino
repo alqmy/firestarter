@@ -12,7 +12,7 @@ void setup()
 {
   SPI.begin(5, 19, 27, 18);
   LoRa.setPins(SS, RST, DI0);
-  LoRa.setTxPower(17);
+  LoRa.setTxPower(2);
 
   Serial.begin(115200);
   delay(1000);
@@ -66,14 +66,14 @@ void loop()
     return;
   }
 
+  packet.setCharAt(packet.length()-1, '1');
+
   Serial.println("Forwarding " + packet);
 
-  packet = "rr\n"+packet;
+  byte buf[packet.length()+1];
+  packet.getBytes(buf, packet.length()+1);
 
-  byte buf[packet.length()];
-  packet.getBytes(buf, packet.length());
-
-  int sent = sendPacket(buf, packet.length());
+  int sent = sendPacket(buf, packet.length()+1);
   if (!sent) {
     Serial.println("failed");
   }

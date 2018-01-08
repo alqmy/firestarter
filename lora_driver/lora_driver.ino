@@ -1,4 +1,4 @@
-#include <SPI.h>              // include libraries
+#include <SPI.h>
 #include <LoRa.h>
 
 #define SS      18
@@ -7,12 +7,13 @@
 #define BAND    433E6
 
 const int maxPacketSize = 256;
+const String alphaNum = "asdfghjklqwertyuiopzxcvbnmASDFGHJKLQWERTYUIOPZXCVBNM1234567890";
 
 void setup()
 {
   SPI.begin(5, 19, 27, 18);
   LoRa.setPins(SS, RST, DI0);
-  LoRa.setTxPower(17);
+  LoRa.setTxPower(2);
 
   Serial.begin(115200);
   delay(1000);
@@ -26,14 +27,26 @@ void setup()
   Serial.setTimeout(50);
 }
 
-int sendPacket(const byte packet[], int n) 
-{  
+int sendPacket(const char data[], int n, bool repeated) 
+{ 
+  int bytes_written = 0;
+  String id;
+
+  for (int i = 0; i < 7; i++) {
+    id += alphaNum.charAt(random(alphaNum.length())-1);
+  }
+
+
+  String packet = id + ";" + String(n) + ";" + String(data) + ";" + String(repeated);
+
   if(!LoRa.beginPacket()) {
     return 0;
   }
-  
-  int bytes_written = LoRa.write(packet, n);
-  if (bytes_written != n) {
+
+  byte buff[packet.length()+1];
+  packet.getBytes(buff, packet.length()+1);
+  bytes_written = LoRa.write(buff, packet.length()+1);
+  if (!bytes_written) {
     return 0;
   }
   
@@ -71,10 +84,11 @@ void receive() {
 void send() {
   if (!Serial.available()) { return; }
   
-  byte buf[maxPacketSize];
+  char buf[maxPacketSize+1];
   size_t n = Serial.readBytesUntil('\n', buf, maxPacketSize);
+  buf[n] = '\0';
   Serial.println("w");
-  int wrote = sendPacket(buf, n);
+  int wrote = sendPacket(buf, n, false);
   if (!wrote) {
     Serial.println("0");
   }
